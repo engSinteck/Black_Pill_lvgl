@@ -1,0 +1,8 @@
+*.o
+*.su
+Debug/Core
+Debug/Drivers
+Debug/lvgl
+Debug/startup
+
+/Debug/
