@@ -290,7 +290,7 @@
     #define lv_snprintf  snprintf
     #define lv_vsnprintf vsnprintf
 #else   /*LV_SPRINTF_CUSTOM*/
-    #define LV_SPRINTF_USE_FLOAT 0
+    #define LV_SPRINTF_USE_FLOAT 1
 #endif  /*LV_SPRINTF_CUSTOM*/
 
 #define LV_USE_USER_DATA 1
@@ -360,7 +360,7 @@
 #define LV_FONT_MONTSERRAT_22 0
 #define LV_FONT_MONTSERRAT_24 0
 #define LV_FONT_MONTSERRAT_26 0
-#define LV_FONT_MONTSERRAT_28 0
+#define LV_FONT_MONTSERRAT_28 1
 #define LV_FONT_MONTSERRAT_30 0
 #define LV_FONT_MONTSERRAT_32 0
 #define LV_FONT_MONTSERRAT_34 0
@@ -385,7 +385,8 @@
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
-#define LV_FONT_CUSTOM_DECLARE
+#define LV_FONT_CUSTOM_DECLARE  LV_FONT_DECLARE(lv_7seg_64) \
+                                LV_FONT_DECLARE(lv_7seg_40)
 
 /*Always set a default font*/
 #define LV_FONT_DEFAULT &lv_font_montserrat_14

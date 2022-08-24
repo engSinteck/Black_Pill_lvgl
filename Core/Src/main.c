@@ -27,11 +27,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdbool.h"
 #include "stdio.h"
 #include "string.h"
 #include "usbd_cdc_if.h"
 #include "../BSP/ILI9341/ILI9341.h"
 #include "../BSP/MAX6675/max6675.h"
+#include "../BSP/ADS1115/ads1115.h"
+#include "../BSP/MCP4725/mcp4725.h"
 #include "../lvgl/lvgl.h"
 
 #include "../APP/tft_screen.h"
@@ -54,12 +57,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+MCP4725 myMCP4725;
+MAX6675_Typedef* MAX6675;
+
 static lv_disp_draw_buf_t disp_buf;
 static lv_color_t buf[320*10];			// TFT Buffers
 uint8_t buf_tft[320*10*2];
 uint32_t timer_led = 0;
 char string_usb[1023] = {0};
 float termocouple = 0.0f;
+float adc0 = 0.0f;
+bool state_max6675;
+uint16_t value_max6675;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,16 +120,22 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, 100);		// PWM_CH1 = 100 TFT_LED
-  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, 2048);	// PWM_CH2 = 2048  IRON
+  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, 2048);	// PWM_CH1 = 2048 TFT_LED
+  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, 10);		// PWM_CH2 = 10  IRON
   //
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, 0);		// DIMMER_CH1 = 0
-  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, 4095);	// DIMMER_CH2 = 4095
+  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, 100);		// DIMMER_CH1 = 0
+  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, 2048);	// DIMMER_CH2 = 4095
 
-  sprintf(string_usb, "STM32F411 - Black-Pill - Test\n\r");
-  CDC_Transmit_FS((uint8_t*)string_usb, strlen(string_usb));				// send message via USB CDC
+  // Init ADC - ADS1115
+  ADS1115_Init();
+
+  // Init DAC - MCP4725
+  myMCP4725 = MCP4725_init(&hi2c1, MCP4725A0_ADDR_A00, 3.30);
+
+  // Init MAX6675
+  MAX6675 = MAX6675_Create();
 
   // TFT ILI9341
   ILI9341_Init();
@@ -138,6 +153,8 @@ int main(void)
   disp_drv.flush_cb = ILI9341_Flush;
   disp_drv.hor_res = 320;
   disp_drv.ver_res = 240;
+  disp_drv.rotated = LV_DISP_ROT_270;
+  disp_drv.sw_rotate = 1;
 
   lv_disp_t * disp = lv_disp_drv_register(&disp_drv);
 
@@ -156,14 +173,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-	  /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 	  if(HAL_GetTick() - timer_led > 500) {
 		  timer_led = HAL_GetTick();
 		  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-		  termocouple = Max6675_Read_Temp();
-		  sprintf(string_usb, "Termocouple: %3.2f \n\r", termocouple);
+		  adc0 = ADS1115_GetAinVoltage(ads1115_GND_iic_addr, Gain_2_2048V);
+		  //state_max6675 = MAX6675->MAX6675_getState(MAX6675);
+		  //value_max6675 = MAX6675->MAX6675_getValue(MAX6675);
+		  termocouple = MAX6675->MAX6675_getTemp(MAX6675);
+		  sprintf(string_usb, "ADS1115 - CH0: %3.2f - MAX6675 - State: %d Value: %d Temp.: %3.2f C\n\r", adc0, state_max6675, value_max6675, termocouple);
 		  CDC_Transmit_FS((uint8_t*)string_usb, strlen(string_usb));				// send message via USB CDC
 	  }
 	  lv_timer_handler();

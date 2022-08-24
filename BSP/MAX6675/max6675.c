@@ -5,24 +5,70 @@
  *      Author: rinal
  */
 
-#include "main.h"
-#include "spi.h"
-#include "max6675.h"
+#include "MAX6675.h"
 
-_Bool TCF=0;                                          // Thermocouple Connection acknowledge Flag
-uint8_t DATARX[2];                                    // Raw Data from MAX667
-
-float Max6675_Read_Temp(void)
+uint16_t MAX6675_getValue(MAX6675_Typedef* const sensor)
 {
-	float Temp=0;                                         // Temperature Variable
+	uint8_t buffer[BUFFER_SIZE];
 
 	HAL_GPIO_WritePin(MAX6675_GPIO_Port, MAX6675_Pin, GPIO_PIN_RESET);       // Low State for SPI Communication
-	HAL_SPI_Receive(&hspi1,DATARX, 2, 50);                  // DATA Transfer
-	HAL_GPIO_WritePin(MAX6675_GPIO_Port, MAX6675_Pin, GPIO_PIN_SET);         // High State for SPI Communication
+	HAL_SPI_Receive(&MAX6675_SPI, buffer, 2, HAL_MAX_DELAY);
+	HAL_GPIO_WritePin(MAX6675_GPIO_Port, MAX6675_Pin, GPIO_PIN_SET);       // Low State for SPI Communication
 
-	TCF=(((DATARX[0]|(DATARX[1]<<8))>>2)& 0x0001);        // State of Connecting
-	Temp=((((DATARX[0]|DATARX[1]<<8)))>>3);               // Temperature Data Extraction
-	Temp*=0.25;                                           // Data to Centigrade Conversation
-	HAL_Delay(250);                                       // Waits for Chip Ready(according to Datasheet, the max time for conversion is 220ms)
-	return Temp;
+	sensor->Value = buffer[1] << 8 | buffer[0];
+
+	sensor->Value = sensor->Value >> 3;
+
+	return sensor->Value;
+}
+
+float MAX6675_getTemp(MAX6675_Typedef* const sensor)
+{
+	sensor->Temp_C = (sensor->MAX6675_getValue(sensor) * MAX_TEMP)/MAX6675_RESOLUTION;
+
+	return sensor->Temp_C;
+}
+
+bool MAX6675_getState(MAX6675_Typedef* const sensor)
+{
+	return sensor->State;
+}
+
+void MAX6675_Init(MAX6675_Typedef* const sensor, uint16_t (*getValue_f)(MAX6675_Typedef* const sensor),
+				  float (*getTemp_f)(MAX6675_Typedef* const sensor),bool (*getState_f)(MAX6675_Typedef* const sensor))
+{
+	/*Se inicializan las variables del objeto sensor*/
+	sensor->State = false;
+	sensor->Temp_C = 0;
+	sensor->Value = 0;
+
+	/*Se inializan los apuntadores de los metodos*/
+	sensor->MAX6675_getState = getState_f;
+	sensor->MAX6675_getTemp = getTemp_f;
+	sensor->MAX6675_getValue = getValue_f;
+}
+
+MAX6675_Typedef* MAX6675_Create(void)
+{
+	MAX6675_Typedef* sensor = (MAX6675_Typedef*)malloc(sizeof(MAX6675_Typedef));
+	if (sensor != NULL)
+	{
+		MAX6675_Init(sensor,MAX6675_getValue,MAX6675_getTemp,MAX6675_getState);
+	}
+
+	return sensor;
+}
+
+void MAX6675_Cleanup(MAX6675_Typedef* const sensor)
+{
+
+}
+
+void MAX6675_Destroy(MAX6675_Typedef* const sensor)
+{
+	if (sensor != NULL)
+	{
+		MAX6675_Cleanup(sensor);
+	}
+	free(sensor);
 }

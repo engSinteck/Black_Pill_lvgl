@@ -71,6 +71,8 @@ void Error_Handler(void);
 #define FLASH_CS_GPIO_Port GPIOA
 #define MAX6675_Pin GPIO_PIN_0
 #define MAX6675_GPIO_Port GPIOB
+#define ADC_ALERT_Pin GPIO_PIN_1
+#define ADC_ALERT_GPIO_Port GPIOB
 #define TFT_RST_Pin GPIO_PIN_2
 #define TFT_RST_GPIO_Port GPIOB
 #define TFT_DC_Pin GPIO_PIN_10
@@ -83,6 +85,10 @@ void Error_Handler(void);
 #define TFT_MISO_GPIO_Port GPIOB
 #define TFT_MOSI_Pin GPIO_PIN_15
 #define TFT_MOSI_GPIO_Port GPIOB
+#define RELAY_Pin GPIO_PIN_15
+#define RELAY_GPIO_Port GPIOA
+#define TOUCH_CS_Pin GPIO_PIN_3
+#define TOUCH_CS_GPIO_Port GPIOB
 #define PWM_IRON_Pin GPIO_PIN_4
 #define PWM_IRON_GPIO_Port GPIOB
 #define PWM_TFT_Pin GPIO_PIN_5
