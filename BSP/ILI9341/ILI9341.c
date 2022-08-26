@@ -10,8 +10,11 @@
 #include "string.h" // For memcpy
 #include "stdio.h"
 #include "main.h"
+#include "dma.h"
+#include "spi.h"
 
 extern uint8_t buf_tft[];
+static lv_disp_drv_t disp_drv;
 
 /* Global Variables ------------------------------------------------------------------*/
 volatile uint16_t LCD_HEIGHT = ILI9341_SCREEN_HEIGHT;
@@ -415,11 +418,38 @@ void ILI9341_Draw_Vertical_Line(uint16_t X, uint16_t Y, uint16_t Height, uint16_
 	ILI9341_Draw_Colour_Burst(Colour, Height);
 }
 
+static void ILI9341_SPI_WAIT_DMA(void){
+	 while(ILI9341_SPI_PORT.hdmatx->State != HAL_DMA_STATE_READY); //waits until SPI TX DMA channel complete transmission
+}
+
+void ILI9341_Send_Data_DMA(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end, uint8_t *p)
+{
+	ILI9341_Set_Address(x_start, y_start, x_end, y_end);
+    HAL_GPIO_WritePin(LCD_DC_PORT, LCD_DC_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_RESET);
+    ILI9341_SPI_WAIT_DMA();
+    HAL_SPI_Transmit_DMA(HSPI_INSTANCE, (uint8_t *)p, (x_end - x_start + 1) * (y_end - y_start + 1) * 2);
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	lv_disp_flush_ready(&disp_drv);                  /* Tell you are ready with the flushing*/
+
+	HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_SET);
+}
+
+/* Flush the content of the internal buffer the specific area on the display
+ * You can use DMA or any hardware acceleration to do this operation in the background but
+ * 'lv_disp_flush_ready()' has to be called when finished. */
+void ILI9341_Flush_DMA(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+{
+    /*SPI transmit data with DMA*/
+	ILI9341_Send_Data_DMA(area->x1, area->y1, area->x2, area->y2, (uint8_t *)color_p);
+}
+
 void ILI9341_Flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
 	uint16_t size;
-//	uint16_t teste = 0;
-//	uint8_t tmp[2];
 
     size = ( ((area->x2 - area->x1) + 1)  * ((area->y2 - area->y1) + 1) );
     ILI9341_Set_Address(area->x1, area->y1, area->x2, area->y2);
@@ -435,17 +465,6 @@ void ILI9341_Flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t 
 	HAL_SPI_Transmit(HSPI_INSTANCE, (uint8_t *)&buf_tft[0], ((size-1)*2), HAL_MAX_DELAY);
 
 	HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_SET);
-/*
-	for(uint16_t x = 0; x <= size-1; x++) {
-		tmp[0] = color_p->full >> 8;
-		tmp[1] = color_p->full;
-		HAL_GPIO_WritePin(LCD_DC_PORT, LCD_DC_PIN, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_RESET);
-		HAL_SPI_Transmit(HSPI_INSTANCE, (uint8_t *)&tmp[0], 2, HAL_MAX_DELAY);
-		color_p++;
-		teste++;
-		HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_SET);
-	}
-*/
+
 	lv_disp_flush_ready(disp_drv);                  /* Tell you are ready with the flushing*/
 }

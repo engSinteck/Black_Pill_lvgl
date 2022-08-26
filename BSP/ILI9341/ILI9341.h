@@ -20,6 +20,7 @@ extern SPI_HandleTypeDef hspi2;
 
 //SPI INSTANCE
 #define HSPI_INSTANCE							&hspi2
+#define ILI9341_SPI_PORT   						hspi1
 
 //CHIP SELECT PIN AND PORT, STANDARD GPIO
 #define LCD_CS_PORT								TFT_CS_GPIO_Port
@@ -81,6 +82,7 @@ void ILI9341_Draw_Horizontal_Line(uint16_t X, uint16_t Y, uint16_t Width, uint16
 void ILI9341_Draw_Vertical_Line(uint16_t X, uint16_t Y, uint16_t Height, uint16_t Colour);
 
 void ILI9341_Flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
+void ILI9341_Flush_DMA(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 
 
 #endif /* INC_ILI9341_H_ */

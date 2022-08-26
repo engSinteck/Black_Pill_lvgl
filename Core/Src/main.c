@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
@@ -61,7 +62,8 @@ MCP4725 myMCP4725;
 MAX6675_Typedef* MAX6675;
 
 static lv_disp_draw_buf_t disp_buf;
-static lv_color_t buf[320*10];			// TFT Buffers
+static lv_color_t buf[320*20];			// TFT Buffers
+static lv_color_t buf2[320*20];			// TFT Buffers
 uint8_t buf_tft[320*10*2];
 uint32_t timer_led = 0;
 char string_usb[1023] = {0};
@@ -110,6 +112,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_RTC_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
@@ -125,8 +128,8 @@ int main(void)
   //
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, 100);		// DIMMER_CH1 = 0
-  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, 2048);	// DIMMER_CH2 = 4095
+  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, 100);		// DIMMER_CH1 = 100
+  __HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_2, 2048);	// DIMMER_CH2 = 2048
 
   // Init ADC - ADS1115
   ADS1115_Init();
@@ -144,13 +147,14 @@ int main(void)
   ILI9341_Set_Rotation(3);
 
   lv_init();
-  lv_disp_draw_buf_init(&disp_buf, buf, NULL, 320*10);	//Initialize the display buffer
+  lv_disp_draw_buf_init(&disp_buf, buf, buf2, 320*20);	//Initialize the display buffer
 
   // Create a display
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv); 		//Basic initialization
   disp_drv.draw_buf = &disp_buf;
-  disp_drv.flush_cb = ILI9341_Flush;
+  //disp_drv.flush_cb = ILI9341_Flush;
+  disp_drv.flush_cb = ILI9341_Flush_DMA;
   disp_drv.hor_res = 320;
   disp_drv.ver_res = 240;
   disp_drv.rotated = LV_DISP_ROT_270;
@@ -163,7 +167,6 @@ int main(void)
 
   lv_group_t * g = lv_group_create();
   lv_group_set_default(g);
-
   //
   main_screen();
 
