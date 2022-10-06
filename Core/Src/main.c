@@ -62,8 +62,8 @@ MCP4725 myMCP4725;
 MAX6675_Typedef* MAX6675;
 
 static lv_disp_draw_buf_t disp_buf;
-static lv_color_t buf[320*20];			// TFT Buffers
-static lv_color_t buf2[320*20];			// TFT Buffers
+static lv_color_t buf[320*10];			// TFT Buffers
+//static lv_color_t buf2[320*10];			// TFT Buffers
 uint8_t buf_tft[320*10*2];
 uint32_t timer_led = 0;
 char string_usb[1023] = {0};
@@ -147,14 +147,14 @@ int main(void)
   ILI9341_Set_Rotation(3);
 
   lv_init();
-  lv_disp_draw_buf_init(&disp_buf, buf, buf2, 320*20);	//Initialize the display buffer
+  lv_disp_draw_buf_init(&disp_buf, buf, NULL, 320*10);	//Initialize the display buffer
 
   // Create a display
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv); 		//Basic initialization
   disp_drv.draw_buf = &disp_buf;
-  //disp_drv.flush_cb = ILI9341_Flush;
-  disp_drv.flush_cb = ILI9341_Flush_DMA;
+  disp_drv.flush_cb = ILI9341_Flush;
+  //disp_drv.flush_cb = ILI9341_Flush_DMA;
   disp_drv.hor_res = 320;
   disp_drv.ver_res = 240;
   disp_drv.rotated = LV_DISP_ROT_270;
