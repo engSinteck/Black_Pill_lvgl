@@ -37,6 +37,7 @@
 #include "../BSP/ADS1115/ads1115.h"
 #include "../BSP/MCP4725/mcp4725.h"
 #include "../BSP/ENCODER/encoder.h"
+#include "../BSP/KEY/key.h"
 #include "../lvgl/lvgl.h"
 
 #include "../APP/tft_screen.h"
@@ -137,6 +138,12 @@ int main(void)
 
   // Init DAC - MCP4725
   myMCP4725 = MCP4725_init(&hi2c1, MCP4725A0_ADDR_A00, 3.30);
+
+  // Inicia Fila de Eventos do Teclado
+  Evt_InitQueue();
+
+  // Inicia Tecla
+  KeyboardInit(0x01);
 
   // TFT ILI9341
   ILI9341_Init();
