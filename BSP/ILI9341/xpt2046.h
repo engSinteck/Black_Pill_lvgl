@@ -13,7 +13,7 @@
 #include "main.h"
 
 
-#define TP_CS(x)	  HAL_GPIO_WritePin(MAX6675_GPIO_Port, MAX6675_Pin, x ? GPIO_PIN_SET : GPIO_PIN_RESET)
+//#define TP_CS(x)	  HAL_GPIO_WritePin(MAX6675_GPIO_Port, MAX6675_Pin, x ? GPIO_PIN_SET : GPIO_PIN_RESET)
 
 //#define TP_INT_IN()   HAL_GPIO_ReadPin(TOUCH_PRESS_GPIO_Port, TOUCH_PRESS_Pin)
 

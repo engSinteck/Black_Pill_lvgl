@@ -419,7 +419,7 @@ void ILI9341_Draw_Vertical_Line(uint16_t X, uint16_t Y, uint16_t Height, uint16_
 }
 
 static void ILI9341_SPI_WAIT_DMA(void){
-	 while(ILI9341_SPI_PORT.hdmatx->State != HAL_DMA_STATE_READY); //waits until SPI TX DMA channel complete transmission
+	 while(HSPI_INSTANCE.hdmatx->State != HAL_DMA_STATE_READY); //waits until SPI TX DMA channel complete transmission
 }
 
 void ILI9341_Send_Data_DMA(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end, uint8_t *p)

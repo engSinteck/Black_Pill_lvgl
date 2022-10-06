@@ -72,6 +72,7 @@ float termocouple = 0.0f;
 float adc0 = 0.0f;
 bool state_max6675;
 uint16_t value_max6675;
+uint16_t pot1 = 0, pot2 = 0, pot3 = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,7 +116,6 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_RTC_Init();
-  MX_SPI1_Init();
   MX_SPI2_Init();
   MX_TIM2_Init();
   MX_USB_DEVICE_Init();
@@ -137,9 +137,6 @@ int main(void)
 
   // Init DAC - MCP4725
   myMCP4725 = MCP4725_init(&hi2c1, MCP4725A0_ADDR_A00, 3.30);
-
-  // Init MAX6675
-  MAX6675 = MAX6675_Create();
 
   // TFT ILI9341
   ILI9341_Init();
@@ -182,7 +179,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  if(HAL_GetTick() - timer_led > 500) {
 		  timer_led = HAL_GetTick();
-		  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+		  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 		  adc0 = ADS1115_GetAinVoltage(ads1115_GND_iic_addr, Gain_2_2048V);
 		  //state_max6675 = MAX6675->MAX6675_getState(MAX6675);
 		  //value_max6675 = MAX6675->MAX6675_getValue(MAX6675);
@@ -190,6 +187,10 @@ int main(void)
 		  sprintf(string_usb, "ADS1115 - CH0: %3.2f - MAX6675 - State: %d Value: %d Temp.: %3.2f C\n\r", adc0, state_max6675, value_max6675, termocouple);
 		  CDC_Transmit_FS((uint8_t*)string_usb, strlen(string_usb));				// send message via USB CDC
 	  }
+	  pot1 = Read_Encoder_A();
+	  pot2 = Read_Encoder_B();
+	  pot3 = Read_Encoder_C();
+
 	  lv_timer_handler();
   }
   /* USER CODE END 3 */

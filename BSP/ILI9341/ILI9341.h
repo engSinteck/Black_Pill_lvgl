@@ -20,7 +20,6 @@ extern SPI_HandleTypeDef hspi2;
 
 //SPI INSTANCE
 #define HSPI_INSTANCE							&hspi2
-#define ILI9341_SPI_PORT   						hspi1
 
 //CHIP SELECT PIN AND PORT, STANDARD GPIO
 #define LCD_CS_PORT								TFT_CS_GPIO_Port

@@ -19,12 +19,12 @@ uint16_t encoderA = 0, encoderB = 0, encoderC = 0;
 uint16_t Read_Encoder_A(void)
 {
 	/* BEGIN – Code for encoder */
-	aVal = HAL_GPIO_ReadPin(GPIOC, LED_Pin);
+	aVal = HAL_GPIO_ReadPin(ENC1_A_GPIO_Port, ENC1_A_Pin);
 	if (aVal != aLast)
 	{ 	// Means the knob is rotating
 		// if the knob is rotating, we need to determine direction
 		// We do that by reading pin B.
-		if (HAL_GPIO_ReadPin(GPIOC, LED_Pin) != aVal)
+		if (HAL_GPIO_ReadPin(ENC1_B_GPIO_Port, ENC1_B_Pin) != aVal)
 		{ // Means pin A Changed first – We’re Rotating Clockwise
 			encoderA++;
 			if(encoderA >= 4095) encoderA = 4095;
@@ -45,12 +45,12 @@ uint16_t Read_Encoder_A(void)
 uint16_t Read_Encoder_B(void)
 {
 	/* BEGIN – Code for encoder */
-	bVal = HAL_GPIO_ReadPin(GPIOC, LED_Pin);
+	bVal = HAL_GPIO_ReadPin(ENC2_A_GPIO_Port, ENC2_A_Pin);
 	if (bVal != bLast)
 	{ 	// Means the knob is rotating
 		// if the knob is rotating, we need to determine direction
 		// We do that by reading pin B.
-		if (HAL_GPIO_ReadPin(GPIOC, LED_Pin) != aVal)
+		if (HAL_GPIO_ReadPin(ENC2_B_GPIO_Port, ENC2_B_Pin) != aVal)
 		{ // Means pin A Changed first – We’re Rotating Clockwise
 			encoderB++;
 			if(encoderB >= 4095) encoderB = 4095;
@@ -71,12 +71,12 @@ uint16_t Read_Encoder_B(void)
 uint16_t Read_Encoder_C(void)
 {
 	/* BEGIN – Code for encoder */
-	cVal = HAL_GPIO_ReadPin(GPIOC, LED_Pin);
+	cVal = HAL_GPIO_ReadPin(ENC3_A_GPIO_Port, ENC3_A_Pin);
 	if (cVal != cLast)
 	{ 	// Means the knob is rotating
 		// if the knob is rotating, we need to determine direction
 		// We do that by reading pin B.
-		if (HAL_GPIO_ReadPin(GPIOC, LED_Pin) != aVal)
+		if (HAL_GPIO_ReadPin(ENC3_B_GPIO_Port, ENC3_B_Pin) != aVal)
 		{ // Means pin A Changed first – We’re Rotating Clockwise
 			encoderC++;
 			if(encoderC >= 4095) encoderC = 4095;
