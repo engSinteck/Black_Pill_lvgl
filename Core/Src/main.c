@@ -36,6 +36,7 @@
 #include "../BSP/MAX6675/max6675.h"
 #include "../BSP/ADS1115/ads1115.h"
 #include "../BSP/MCP4725/mcp4725.h"
+#include "../BSP/ENCODER/encoder.h"
 #include "../lvgl/lvgl.h"
 
 #include "../APP/tft_screen.h"
