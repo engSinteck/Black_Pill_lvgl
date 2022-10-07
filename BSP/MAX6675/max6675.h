@@ -13,7 +13,7 @@
 #include "stdlib.h"
 #include "spi.h"
 
-#define MAX6675_SPI hspi1
+#define MAX6675_SPI hspi2
 #define BUFFER_SIZE 2
 #define MAX_TEMP 1024
 #define MAX6675_RESOLUTION 4095

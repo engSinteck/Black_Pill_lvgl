@@ -36,6 +36,7 @@
 #include "../BSP/MAX6675/max6675.h"
 #include "../BSP/ADS1115/ads1115.h"
 #include "../BSP/MCP4725/mcp4725.h"
+#include "../BSP/MAX6675/max6675.h"
 #include "../BSP/ENCODER/encoder.h"
 #include "../BSP/KEY/key.h"
 #include "../lvgl/lvgl.h"
@@ -64,7 +65,7 @@ MCP4725 myMCP4725;
 MAX6675_Typedef* MAX6675;
 
 static lv_disp_draw_buf_t disp_buf;
-static lv_color_t buf[320*10];			// TFT Buffers
+static lv_color_t buf[320*10];				// TFT Buffers
 //static lv_color_t buf2[320*10];			// TFT Buffers
 uint8_t buf_tft[320*10*2];
 uint32_t timer_led = 0;
@@ -188,12 +189,14 @@ int main(void)
 		  timer_led = HAL_GetTick();
 		  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 		  adc0 = ADS1115_GetAinVoltage(ads1115_GND_iic_addr, Gain_2_2048V);
-		  //state_max6675 = MAX6675->MAX6675_getState(MAX6675);
-		  //value_max6675 = MAX6675->MAX6675_getValue(MAX6675);
+		  state_max6675 = MAX6675->MAX6675_getState(MAX6675);
+		  value_max6675 = MAX6675->MAX6675_getValue(MAX6675);
 		  termocouple = MAX6675->MAX6675_getTemp(MAX6675);
 		  sprintf(string_usb, "ADS1115 - CH0: %3.2f - MAX6675 - State: %d Value: %d Temp.: %3.2f C\n\r", adc0, state_max6675, value_max6675, termocouple);
 		  CDC_Transmit_FS((uint8_t*)string_usb, strlen(string_usb));				// send message via USB CDC
 	  }
+	  KeyboardEvent();
+
 	  pot1 = Read_Encoder_A();
 	  pot2 = Read_Encoder_B();
 	  pot3 = Read_Encoder_C();

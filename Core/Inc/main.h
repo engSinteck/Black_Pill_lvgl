@@ -78,8 +78,8 @@ void Error_Handler(void);
 #define LED3_GPIO_Port GPIOA
 #define LED4_Pin GPIO_PIN_0
 #define LED4_GPIO_Port GPIOB
-#define ADC_ALERT_Pin GPIO_PIN_1
-#define ADC_ALERT_GPIO_Port GPIOB
+#define MAX6675_Pin GPIO_PIN_1
+#define MAX6675_GPIO_Port GPIOB
 #define TFT_RST_Pin GPIO_PIN_2
 #define TFT_RST_GPIO_Port GPIOB
 #define TFT_DC_Pin GPIO_PIN_10
@@ -88,8 +88,6 @@ void Error_Handler(void);
 #define TFT_CS_GPIO_Port GPIOB
 #define TFT_SCK_Pin GPIO_PIN_13
 #define TFT_SCK_GPIO_Port GPIOB
-#define TFT_MISO_Pin GPIO_PIN_14
-#define TFT_MISO_GPIO_Port GPIOB
 #define TFT_MOSI_Pin GPIO_PIN_15
 #define TFT_MOSI_GPIO_Port GPIOB
 #define ENC3_A_Pin GPIO_PIN_8
